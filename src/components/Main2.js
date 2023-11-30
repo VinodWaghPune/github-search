@@ -1,4 +1,4 @@
-import React, { useState, useReducer,useEffect } from "react";
+import React, { useState, useReducer,useEffect ,useRef} from "react";
 import User from "./User";
 import axios from "axios";
 
@@ -9,8 +9,27 @@ function Main2() {
 
 
   const pageSize = 10;
+  const searchInputRef = useRef(null);
+  const prevSearchRef = useRef('')
+
+
 
   const initialState = {text:'',users:[],pageNo:1}
+
+  useEffect(() => {
+    const inputRef = searchInputRef.current;
+
+    // Set focus and update placeholder
+    inputRef.focus();
+    inputRef.placeholder = "Type here";
+  
+    // Cleanup function to remove focus on component unmount
+    return () => {
+      inputRef.blur();
+    };
+
+  },[] )
+  
 
 
   const reducer = (state, action) => {
@@ -38,6 +57,7 @@ function Main2() {
 
   const handleChange = (e) => {
     //setText(e.target.value);
+
     dispatch({type:'text',payload:e.target.value})
   };
 
@@ -61,7 +81,7 @@ function Main2() {
     try {
         const response = await axios.get(URL,{
             headers: {
-              Authorization: "Bearer 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",
+              Authorization: "token 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",
             },
           })
           dispatch({type:'GETUSERS',payload:response.data.items})
@@ -100,6 +120,7 @@ function Main2() {
       }
 
       console.log(state.text)
+      prevSearchRef.current = state.text;
 
       getUsers();
       //showUsers();
@@ -115,11 +136,13 @@ function Main2() {
         <h1>useReducer hook</h1>
       {/* inputcomponent */}
       <div className="  w-[50%] mx-auto mt-20">
+        <p>you previously searched for {prevSearchRef.current}</p>
         <input
           type="text"
           placeholder="Type here"
           className="input input-bordered input-primary w-full max-w-xs"
           value={state.text}
+          ref={searchInputRef}
           onChange={(e) => handleChange(e)}
         />
         <button className="btn btn-primary ml-5" onClick={handleSearch}>
